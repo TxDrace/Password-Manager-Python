@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./password_manager_python"
+    ],
+    "todo-tree.tree.showBadges": false
+}
