@@ -54,11 +54,23 @@ def reset(
 
 @app.command(help="Generate a strong password")
 def gen():
-    #TODO:
-    typer.echo("Execute gen command")
+    feature.generate_password()
 
 
 @app.command(help="List all services associated with your accounts")
 def list():
-    #TODO:
-    typer.echo("Execute list command")
+    feature.list_all_service()
+
+
+@app.command(help="Import data from a json file")
+def import_data(
+    path: Annotated[str, typer.Option("--path", "-p", help="Path to data file", show_default=False, prompt="Path to data file")],
+):
+    feature.import_data_from_json_file(path)
+
+
+@app.command(help="Export data to a json file")
+def export_data(
+    path: Annotated[str, typer.Option("--path", "-p", help="Destination folder", show_default=False, prompt="Path to destination folder")],
+):
+    feature.export_data_to_json_file(path)

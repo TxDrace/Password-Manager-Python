@@ -1,9 +1,8 @@
 from password_manager_python import mongo_db_client, account, crypto
-from typing import List
 import typer
 import nacl.utils
 
-def query_credentials(_service:str|None = None, _username:str|None = None) -> List[account.Account]: 
+def query_credentials(_service:str|None = None, _username:str|None = None) -> list[account.Account]: 
     try:
         query = {}
         if _service is not None and _username is None: 
@@ -33,7 +32,7 @@ def query_credentials(_service:str|None = None, _username:str|None = None) -> Li
                 }
             }
         
-        accounts:List[account.Account] = []
+        accounts:list[account.Account] = []
         client = mongo_db_client.MongoDbClient()
         result = client.collection.find(query)
         for item in result:
@@ -94,3 +93,12 @@ def remove_one_credential(_account:account.Account):
     except Exception as e:
         raise Exception("Unable to add delete account due to the following error: ", e)
 
+
+def query_all_services() -> list[str]:
+    try: 
+        client = mongo_db_client.MongoDbClient()
+        service_list = client.collection.distinct("service")
+        return service_list
+
+    except Exception as e:
+        raise Exception("Unable to add new account due to the following error: ", e)

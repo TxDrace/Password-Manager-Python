@@ -13,7 +13,7 @@ class SingletonMetaClass(type):
 class MongoDbClient(metaclass=SingletonMetaClass):
     def __init__(self):
         self.uri = "mongodb+srv://nguyenhaituyen1804:F8B63cumwheGHWkq@cluster0.4kyr8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-        self.client = MongoClient(self.uri, server_api=ServerApi(version='1', strict=True, deprecation_errors=True))
+        self.client = MongoClient(self.uri, server_api=ServerApi(version='1'))
         self.database = self.client.get_database("password-manager")
         self.collection = self.database.get_collection("credentials")
 

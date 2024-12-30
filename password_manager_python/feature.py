@@ -2,11 +2,12 @@ import typer
 from password_manager_python import db_jobs, account, printer, receptionist, system_interact, crypto
 import pyinputplus as pyip
 import pyperclip
-from typing import List
+import json
+from pathlib import Path
 
 
 def find_credentials(_service:str|None, _username:str|None):
-    accounts:List[account.Account] = db_jobs.query_credentials(_service, _username)
+    accounts:list[account.Account] = db_jobs.query_credentials(_service, _username)
 
     if (len(accounts) > 0): 
         printer.print_credentials(accounts)
@@ -27,7 +28,7 @@ def add_one_credentail(_service:str, _username:str, _password:str, _description:
 
 
 def edit_one_credential(_service:str|None, _username:str|None):
-    accounts:List[account.Account] = db_jobs.query_credentials(_service, _username)
+    accounts:list[account.Account] = db_jobs.query_credentials(_service, _username)
 
     if (len(accounts) > 0): 
         printer.print_credentials(accounts)
@@ -60,7 +61,7 @@ def edit_one_credential(_service:str|None, _username:str|None):
 
 
 def remove_one_credential(_service:str|None, _username:str|None): 
-    accounts:List[account.Account] = db_jobs.query_credentials(_service, _username)
+    accounts:list[account.Account] = db_jobs.query_credentials(_service, _username)
 
     if (len(accounts) > 0): 
         printer.print_credentials(accounts)
@@ -78,7 +79,7 @@ def remove_one_credential(_service:str|None, _username:str|None):
 
 def reset_database(_new_master_password:str): 
     try: 
-        accounts:List[account.Account] = db_jobs.query_credentials()
+        accounts:list[account.Account] = db_jobs.query_credentials()
 
         for item in accounts:  
             
@@ -88,4 +89,56 @@ def reset_database(_new_master_password:str):
             typer.echo(typer.style("[Success] Database has been reset", fg=typer.colors.GREEN, bold=True))
 
     except Exception as e:
-            typer.echo(typer.style(f"[Error] An error occur: {e} \nDid you update the enviroment varible: 'PM_MASTER_PASSWORD' yet?", fg=typer.colors.RED, bold=True))
+        typer.echo(typer.style(f"[Error] An error occur: {e} \nDid you update the enviroment varible: 'PM_MASTER_PASSWORD' yet?", fg=typer.colors.RED, bold=True))
+
+
+def list_all_service(): 
+    service_list = db_jobs.query_all_services()
+    printer.print_service_list(service_list)
+
+
+def generate_password(_len:int=50):
+    new_password = crypto.password_random(_len,5)
+    pyperclip.copy(new_password)
+    typer.echo(typer.style("[Success] Password has been copied to clipboard", fg=typer.colors.GREEN, bold=True))
+
+
+def import_data_from_json_file(_path:str):
+    try:
+        with open(_path, 'r') as file:
+            accounts = json.load(file)
+            for acc in accounts: 
+                db_jobs.add_one_credential(
+                    acc["service"], 
+                    acc["username"],
+                    crypto.encrypt(acc["password"].encode("utf-8")),
+                    acc["description"]
+                )
+        typer.echo(typer.style("[Success] Credentials data has been imported", fg=typer.colors.GREEN, bold=True))
+    except Exception as e: 
+        typer.echo(typer.style(f"[Error] An error occur: {e}", fg=typer.colors.RED, bold=True))
+
+
+def export_data_to_json_file(_path:str): 
+    try:
+        accounts:list[account.Account] = db_jobs.query_credentials()
+        if (len(accounts) > 0):
+            data = []
+            for acc in accounts: 
+                data.append({
+                    "service": acc.service, 
+                    "username": acc.username,
+                    "password": acc.get_decrypted_password(),
+                    "description": acc.description
+                })
+            with open(Path(_path) / 'credentials-data-export.json', 'w') as file:
+                json.dump(data, file, indent=4)
+                
+            typer.echo(typer.style("[Success] Credentials data has been imported", fg=typer.colors.GREEN, bold=True))
+        else:
+            typer.echo(typer.style(f"[Warning] No credentials found", fg=typer.colors.RED, bold=True))
+
+    except Exception as e: 
+            typer.echo(typer.style(f"[Error] An error occur: {e}", fg=typer.colors.RED, bold=True))
+
+    
