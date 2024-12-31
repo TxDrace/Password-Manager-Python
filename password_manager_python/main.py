@@ -52,11 +52,6 @@ def reset(
     feature.reset_database(master_password)
 
 
-@app.command(help="Generate a strong password")
-def gen():
-    feature.generate_password()
-
-
 @app.command(help="List all services associated with your accounts")
 def list():
     feature.list_all_service()

@@ -97,12 +97,6 @@ def list_all_service():
     printer.print_service_list(service_list)
 
 
-def generate_password(_len:int=50):
-    new_password = crypto.password_random(_len,5)
-    pyperclip.copy(new_password)
-    typer.echo(typer.style("[Success] Password has been copied to clipboard", fg=typer.colors.GREEN, bold=True))
-
-
 def import_data_from_json_file(_path:str):
     try:
         with open(_path, 'r') as file:
