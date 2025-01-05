@@ -5,11 +5,11 @@ from password_manager_python import feature
 
 app = typer.Typer(no_args_is_help=True)
 
-# @app.callback()
-# def callback():
-#     """
-#     Awesome Portal Gun
-#     """
+@app.callback()
+def callback():
+    """
+    A simple CLI tool used for storing credentials in the cloud \n
+    """
 
 @app.command(help="Find a credential in the database")
 def find(
